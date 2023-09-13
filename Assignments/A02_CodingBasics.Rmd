@@ -1,6 +1,6 @@
 ---
-title: "Assignment 2: Coding Basics"
-author: "Student Name"
+title: "SamanthaSedar_A02_Coding Basics"
+author: "Samantha Sedar"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -32,11 +32,16 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 
 ```{r basics 1}
 #1. 
+seq(1, 30, 3) #sequence- from, to, by#
+one_to_thirty_by_3<-seq(1, 30, 3) #naming
 
 #2. 
+mean(one_to_thirty_by_3) #calculate mean
+median(one_to_thirty_by_3) #calculate median
 
-#3. 
-
+#3. #determine that they are equal 
+mean(one_to_thirty_by_3)<=median(one_to_thirty_by_3) 
+mean(one_to_thirty_by_3)>=median(one_to_thirty_by_3)
 ```
 
 ## Basics, Part 2
@@ -51,20 +56,44 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 
 ```{r basics 2}
 
+#5 and #6
+names<-c("Jack", "Jill", "John", "Jane") #values/string
+scores<-c(75, 100, 85, 50) #numbers
+passed<-c(TRUE, TRUE, TRUE, FALSE) #boolean
+
+
+
+#7
+
+df_names <- as.data.frame(names)
+
+df_students_name_score_pass <- cbind(names, scores, passed)
+
 ```
 
 9.  QUESTION: How is this data frame different from a matrix?
 
 > Answer:
+This data frame consists of four different components, the students' names, scores, and whether or not they passed the test. A matrix would only consist of one class of data.
 
 10. Create a function with an if/else statement. Your function should take a **vector** of test scores and print (not return) whether a given test score is a passing grade of 50 or above (TRUE or FALSE). You will need to choose either the `if` and `else` statements or the `ifelse` statement. 
 
 11. Apply your function to the vector with test scores that you created in number 5.
 
 ```{r basics 3}
+#10
+x <- scores
+passing_grade <- function(x){
+    ifelse((x>=50), print("TRUE"),   print("FALSE")) 
+}
+
+
+#11
+passing_grade(x)
+
 
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer:
+> Answer: 'ifelse' worked because passing is applicable for the entire vector, rather than each score being tested on distinct parameters.
