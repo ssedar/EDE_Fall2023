@@ -33,6 +33,8 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Ex
 1.  Check your working directory, load necessary packages (tidyverse, lubridate), and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. Be sure to include the subcommand to read strings in as factors.
 
 ```{r,  message = FALSE}
+#On-startup code, uploading packages, ensuring R can read files
+
 getwd()
 library(tidyverse)
 library(lubridate)
@@ -68,13 +70,19 @@ Source: In: Gen. Tech. Rep. SRS-38. Asheville, NC: U.S. Department of Agricultur
 5.  What are the dimensions of the dataset?
 
 ```{r}
+#Printing dimensions (observations and variables) of the data set, reflecting 4623 observations and 30 variables
+
 print(dim(Neonics))
+
+help("dim")
 
 ```
 
 6.  Using the `summary` function on the "Effect" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
 
 ```{r}
+#Sorting the summary function to easily see the most common effects that are studied
+
 sort(summary(Neonics$Effect))
 
 ```
@@ -85,6 +93,8 @@ sort(summary(Neonics$Effect))
 7.  Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.[TIP: The `sort()` command can sort the output of the summary command...]
 
 ```{r}
+#Sorting the summary function to determine the six most studied species
+
 sort(summary(Neonics$Species.Common.Name))
 
 ```
@@ -94,6 +104,8 @@ sort(summary(Neonics$Species.Common.Name))
 8.  Concentrations are always a numeric value. What is the class of `Conc.1..Author.` column in the dataset, and why is it not numeric?
 
 ```{r}
+#Using class to determine how the `Conc.1..Author` column is coded
+
 class(Neonics$Conc.1.Units..Author.) 
 ```
 
@@ -104,6 +116,7 @@ class(Neonics$Conc.1.Units..Author.)
 9.  Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year.
 
 ```{r}
+#Telling R we are starting a graph using the ggplot function, and specifying the dataframe. Then specifiying the type of graph with geom_freqpoly, specifying the data of focus: Publication Year, and number of bins to get the desired level of detail. The final section adds valuable information to the graph.
 
 ggplot(Neonics) +
   geom_freqpoly(aes(x= Publication.Year), bins=50) +
@@ -119,6 +132,7 @@ ggplot(Neonics) +
 #standard syntax + adding color=test.location to make the locations display as different colors
 
 ```{r}
+#Telling R we are starting a graph using the ggplot function, and specifying the dataframe. Then specifiying the type of graph with geom_freqpoly, specifying the data of focus: Publication Year, assigning color by Test Location and binwidth to get the desired level of detail. The final section adds valuable information to the graph.
 
 ggplot(Neonics, aes(x=Publication.Year, color = Test.Location)) +
   geom_freqpoly(binwidth=1) +
@@ -137,6 +151,8 @@ Interpret this graph. What are the most common test locations, and do they diffe
 [**TIP**: Add `theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))` to the end of your plot command to rotate and align the X-axis labels...]
 
 ```{r}
+
+#Telling R we are starting a graph using the ggplot function, and specifying the dataframe. Then specifiying the type of graph with geom_bar, specifying the data of focus: endpoint, counts and adjusting the label directions. The final section adds valuable information to the graph.
 
 ggplot(Neonics, aes(x = Endpoint)) +
   geom_bar() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))  +
@@ -158,6 +174,9 @@ ggplot(Neonics, aes(x = Endpoint)) +
 
 ```{r}
 
+#After determining that collectDate is a date, telling R to reformat using the as.Date function and ensuring that the format is in the exact same way as the original, including dashes or hyphes. 
+#Then reformatting the dates to only include month/year and isolate 8/18 using the unique function, specifying the column of interest. I created a function and then printed the function.
+
 class(Litter$collectDate)
 Litter$collectDate <- as.Date(Litter$collectDate, format = "%Y-%m-%d")
 class(Litter$collectDate)
@@ -170,6 +189,8 @@ print(unique_dates_aug_2018)
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
+#Using the length function in addition to the unique and summary functions in order to obtain usable results for the number of plots sampled at Niwot Ridge
+
 length(unique(Litter$plotID))
 length(summary(Litter$plotID))
 ```
@@ -191,6 +212,7 @@ ggplot(Litter, aes(x = functionalGroup)) +
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup.
 
 ```{r}
+#Similar process to number 11 using geom_boxplot and geom_violin. To confirm hypothesis that there isn't enough data for a valuable violin plot, I found the total values in each functional group. 
 
 ggplot(Litter) +
   geom_boxplot(aes(x = functionalGroup, y = dryMass)) + theme(
