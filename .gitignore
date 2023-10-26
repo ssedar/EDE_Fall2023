@@ -44,3 +44,6 @@ vignettes/*.pdf
 
 #Mac files
 .DS_Store
+.Rproj.user
+.Rdata
+.quarto
