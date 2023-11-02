@@ -84,8 +84,9 @@ NTL_Processed_plot <- ggplot(NTL_Processed,
                               y=temperature_C))+
   ylim(0, 35)+
   geom_point()+
-  geom_smooth(method = lm, color="black")
-  labs(title = "July Temperature by Depth", x = "Depth", 
+  geom_smooth(method = lm, color="black")+
+  labs(title = "              July Temperature by Depth", 
+       x = "Depth", 
        y = "Temperature (C)") 
 
 print(NTL_Processed_plot)
@@ -143,7 +144,7 @@ summary(TEMPAIC)
 
 #10
 
-'Re-run based on prior results'
+'Re-run based on prior results, since the AIC is lowest for <none> indicating to use all factors'
 TEMPAIC <- lm(data = NTL_Processed, temperature_C ~ year4+daynum+depth)
 summary(TEMPAIC)
 
@@ -151,7 +152,7 @@ summary(TEMPAIC)
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: The AIC suggests that all of the explanatory variables are important and should be used to predict the temperature. Based on the r-squared, we can see that this model explains 74.12% of the variance, which is marginally higher than only using depth, which explains 73.87% of variance.
+> Answer: The AIC suggests that all of the explanatory variables are important and should be used to predict the temperature. The AIC for <none> is the lowest, suggesting none should be removed. Based on the r-squared, we can see that this model explains 74.12% of the variance, which is marginally higher than only using depth, which explains 73.87% of variance.
 
 
 ---
@@ -203,9 +204,9 @@ print(NTL_Processed_plot2)
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
 ```{r tukey.test}
-#15
+#15 ********
 #Tukey's HSD test for lakes
-tukey <- TukeyHSD(NTL.anova)
+tukey <- HSD.test(NTL.anova, "lakename", group=T)
 
 # Summary of Tukey's HSD results
 print(tukey)
@@ -213,7 +214,7 @@ print(tukey)
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer:Peter Lake's mean temperature is significantly different from all the other lakes. The confidence intervals do not contain zero and the p value is less than 0.05. Several lakes have statistically distinct mean temperatures from Central Long Lake and Crampton Lake. These lakes have p values less than 0.05 for comparisons with Central Long Lake and Crampton Lake, indicating significant differences.
+>Answer:Peter lake is similar to both Ward and Paul Lake, as they are both group c. Given the overlap in groups, none of the lakes is distinct from all other lakes.
 
  
 

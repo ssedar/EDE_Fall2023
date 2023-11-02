@@ -73,7 +73,7 @@ theme_set(mytheme)
 ## Create graphs
 For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best practices for data visualization. Ensure your theme, color palettes, axes, and additional aesthetics are edited accordingly.
 
-4. [NTL-LTER] Plot total phosphorus (`tp_ug`) by phosphate (`po4`), with separate aesthetics for Peter and Paul lakes. Add a line of best fit and color it black. Adjust your axes to hide extreme values (hint: change the limits using `xlim()` and/or `ylim()`).
+4. [NTL-LTER] Plot total phosphorus (`tp_ug`) by phosphate (`po4`), with separate aesthetics for Peter and Paul lakes. Add a line of best fit and color it black. Adjust your axes to hide ereme values (hint: change the limits using `xlim()` and/or `ylim()`).
 
 ```{r plot total P vs PO4}
 #4 Plot, setting y as po4 and x as tp_ug, adding limits to x in order to view clearer trends within the data. Then printed the plot to view. TP_ug: total dissolved phosphorus, TN_ug: total nitrogen
@@ -112,7 +112,10 @@ temp <- ggplot(PeterPaul,
                     y=temperature_C,
                     fill=lakename))+
   geom_boxplot() + 
-  scale_x_discrete(name="Month")+
+  scale_x_discrete(
+    
+    
+    name="Month")+
   theme(legend.position = "none")+
   labs(title = "Temperature Boxplot", x = "Month", y = "Temperature in C") 
 
