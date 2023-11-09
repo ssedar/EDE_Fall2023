@@ -34,13 +34,9 @@ library(agricolae)
 library(dplyr)
 library(tidyverse)
 library(lubridate)
-#install.packages("trend")
 library(trend)
-#install.packages("zoo") - NA
 library(zoo) 
-#install.packages("Kendall")
 library(Kendall)
-#install.packages("tseries")
 library(tseries)
 
 # Set theme
@@ -94,7 +90,7 @@ GaringerOzone$Date <- as.Date(GaringerOzone$Date, "%m/%d/%Y")
 GaringerOzone_Processed <- select(GaringerOzone, Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE) 
 
 # 5
-# Create a data frame with a sequence of dates -- use start/end/freq OR from/to/by
+# data frame with a sequence of dates
 start_date <- as.Date("2010-01-01")
 end_date <- as.Date("2019-12-31")
 Days <- as.data.frame(seq(start_date, end_date, by = 1))
@@ -121,7 +117,7 @@ GaringerOzone <- left_join(Days, GaringerOzone_Processed, by= "Date")
 
 ggplot(GaringerOzone, aes(x= Date, y = Daily.Max.8.hour.Ozone.Concentration)) +
   geom_line() +
-  geom_smooth(method = lm, color="red")+
+  geom_smooth(method = lm, color="blue")+
   labs(x = "Date", y = "Ozone Concentrations (ppm)")
 
 ```
@@ -137,16 +133,9 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 ```{r}
 #8
 
-head(GaringerOzone)
-summary(GaringerOzone$Daily.Max.8.hour.Ozone.Concentration)
-
-GaringerOzone_clean <- 
-  GaringerOzone %>% 
-  mutate( Daily.Max.8.hour.Ozone.Concentration.clean =
-  zoo::na.approx(Daily.Max.8.hour.Ozone.Concentration) )
-
-summary(GaringerOzone_clean$Daily.Max.8.hour.Ozone.Concentration.clean)
-#NA is gone
+#na approx
+GaringerOzone$Daily.Max.8.hour.Ozone.Concentration <- 
+  zoo::na.approx(GaringerOzone$Daily.Max.8.hour.Ozone.Concentration)
 
 
 ```
@@ -156,14 +145,14 @@ summary(GaringerOzone_clean$Daily.Max.8.hour.Ozone.Concentration.clean)
 9. Create a new data frame called `GaringerOzone.monthly` that contains aggregated data: mean ozone concentrations for each month. In your pipe, you will need to first add columns for year and month to form the groupings. In a separate line of code, create a new Date column with each month-year combination being set as the first day of the month (this is for graphing purposes only)
 
 ```{r}
-#9 group / summarize by means by month... ungroup remutate
+#9 [collaborated on this one to get the grou_by /ungroup piece]
 
 
 GaringerOzone.monthly <-
-  GaringerOzone_clean %>%
+  GaringerOzone %>%
    mutate(Month=month(Date), Year=year(Date))%>%
   group_by(Year, Month) %>%
-  summarize(mean_ozone = mean(Daily.Max.8.hour.Ozone.Concentration.clean)) %>%
+  summarize(mean_ozone = mean(Daily.Max.8.hour.Ozone.Concentration)) %>%
   ungroup()%>%
 mutate(Date = make_date(Year, Month))
 
@@ -178,19 +167,13 @@ mutate(Date = make_date(Year, Month))
 ```{r}
 #10
 
-#Daily observations, using time series from clean ozone df
-GaringerOzone.daily.ts <- ts(GaringerOzone_clean$Daily.Max.8.hour.Ozone.Concentration.clean, 
-                             start = c(2010, 1), end = c(2019, 12), frequency = 365)
-GaringerOzone_monthly <- GaringerOzone %>%
-  mutate(Date = as.Date(Date)) %>%
-  group_by(Year = lubridate::year(Date), Month = lubridate::month(Date)) %>%
-  summarise(MeanOzone = mean(Daily.Max.8.hour.Ozone.Concentration, na.rm = TRUE))
+#Daily observations, using either daily or monthly determined by frequency
+GaringerOzone.daily.ts <- ts(GaringerOzone$Daily.Max.8.hour.Ozone.Concentration, 
+                             start = c(2010, 1), frequency = 365)
 
-# Add a Date column with the first day of each month for graphing purposes
-GaringerOzone_monthly$Date <- as.Date(paste(GaringerOzone_monthly$Year, GaringerOzone_monthly$Month, "01", sep = "-"))
+GaringerOzone.monthly.ts <- ts(GaringerOzone$Daily.Max.8.hour.Ozone.Concentration, 
+                             start = c(2010, 1), frequency = 12)
 
-GaringerOzone_monthly.ts <- ts(GaringerOzone_monthly$MeanOzone, 
-                               start = c(2010, 1), end = c(2019, 12), frequency = 12)
 
 
 ```
@@ -203,20 +186,10 @@ GaringerOzone_monthly.ts <- ts(GaringerOzone_monthly$MeanOzone,
 
 #decompose daily
 daily_stl <- stl(GaringerOzone.daily.ts, s.window = "periodic")
-#plot components 
-par(mfrow = c(3, 1))  # Set up a 3x1 grid for subplots
-plot(daily_stl$time.series[, "seasonal"], main = "Seasonal Component")
-plot(daily_stl$time.series[, "trend"], main = "Trend Component")
-plot(daily_stl$time.series[, "remainder"], main = "Remainder Component")
 
-#decompose  monthly 
-monthly_stl <- stl(GaringerOzone_monthly.ts, s.window = "periodic")
+plot(daily_stl)
+monthly_stl <- stl(GaringerOzone.monthly.ts, s.window = "periodic")
 
-#plot the components 
-par(mfrow = c(3, 1))  # Set up a 3x1 grid for subplots
-plot(monthly_stl$time.series[, "seasonal"], main = "Seasonal Component")
-plot(monthly_stl$time.series[, "trend"], main = "Trend Component")
-plot(monthly_stl$time.series[, "remainder"], main = "Remainder Component")
 
 ```
 
@@ -227,7 +200,7 @@ plot(monthly_stl$time.series[, "remainder"], main = "Remainder Component")
 #12
 
 #smk test
-trend1 <- Kendall::SeasonalMannKendall(GaringerOzone_monthly.ts)
+trend1 <- Kendall::SeasonalMannKendall(GaringerOzone.monthly.ts)
 
 #display
 trend1
@@ -254,7 +227,7 @@ ggplot(GaringerOzone.monthly, aes(x = Date, y = mean_ozone)) +
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-The negative tau value of -0.163 suggests that ozone concentrations have exhibited a decreasing trend over the 2010s. This trend is statistically significant as indicated by the p-value (p = 0.022986), which is less than the significance level of 0.05.
+The negative tau value of -0.0408 suggests that ozone concentrations have exhibited a decreasing trend over the 2010s. This trend is statistically significant as indicated by the p-value (p = 0.00027247), which is less than the significance level of 0.05.
 
 
 15. Subtract the seasonal component from the `GaringerOzone.monthly.ts`. Hint: Look at how we extracted the series components for the EnoDischarge on the lesson Rmd file.
@@ -265,7 +238,8 @@ The negative tau value of -0.163 suggests that ozone concentrations have exhibit
 #15 
 
 #decompose
-decomp <- GaringerOzone_monthly.ts - monthly_stl$time.series[, "seasonal"]
+decomp <- GaringerOzone.monthly.ts - monthly_stl$time.series[, "seasonal"]
+
 GaringerOzone_monthly_detrended_ts <- ts(decomp,
                                         start = c(2010, 1),
                                         end = c(2019, 12),
@@ -276,10 +250,10 @@ plot(GaringerOzone_monthly_detrended_ts, main = "Detrended Monthly Ozone Concent
      xlab = "Date", ylab = "Detrended Ozone Concentrations (ppm)")
 
 #16 
-# Mann-kendall on original
+# mann-kendall on original
 non_seasonal_trend <- Kendall::MannKendall(GaringerOzone_monthly_detrended_ts)
 summary(non_seasonal_trend)
 
 ```
 
-> Answer: Both tests indicate a statistically significant decreasing trend in the mean of monthly ozone concentrations. The non-seasonal test, however, indicated a more pronounced trend (-0.179 vs -0.163) at a higher significance level (0.0038 vs 0.023) 
+> Answer: Both tests indicate a statistically significant decreasing trend in the mean of monthly ozone concentrations.
