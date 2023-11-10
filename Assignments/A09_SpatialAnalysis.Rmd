@@ -1,10 +1,11 @@
 ---
-title: "SamanthaSedar_A09_SpatialAnalysis.Rmd"
+title: "SamanthaSedar_A09_SpatialAnalysis_RENAMINGTORESUBMIT.Rmd"
 author: "Samantha Sedar"
 output: html_document
 ---
 
 ## OVERVIEW
+[test to resubmit]
 
 This exercise accompanies the lessons in Environmental Data Analytics (ENV872L) on spatial analysis.
 
